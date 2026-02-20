@@ -1,139 +1,416 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>Notion Clock + Adhan</title>
 
-<style>
-html, body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Cairo', sans-serif;
-  background: transparent;
-}
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      background: transparent;
+    }
 
-.card {
-  width: 100%;
-  max-width: 780px; /* أهم تعديل */
-  height: 200px;    /* أقل ارتفاع */
-  padding: 20px;
-  border-radius: 16px;
-  text-align: center;
-  color: white;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-  transition: background 0.6s ease;
-}
+    .card {
+      width: 100%;
+      max-width: 780px;
+      height: 220px;
+      padding: 18px 18px 14px;
+      border-radius: 16px;
+      text-align: center;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
 
-/* ===== النهار ===== */
-.day {
-  background: linear-gradient(270deg, #f8c8dc, #ffd9ec, #f8c8dc);
-  background-size: 400% 400%;
-  animation: gradientMove 10s ease infinite;
-}
+    .day{
+      background: linear-gradient(270deg, #f8c8dc, #ffd9ec, #f8c8dc);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+    }
+    .night{
+      background: linear-gradient(135deg, #c07aa0, #8a4f7a, #5d2f57);
+      background-size: 300% 300%;
+      animation: gradientMove 18s ease infinite;
+    }
+    @keyframes gradientMove{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
 
-/* ===== الليل ===== */
-.night {
-  background: linear-gradient(135deg, #c07aa0, #8a4f7a);
-}
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
 
-@keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.14);
+      font-size: 13px;
+      white-space: nowrap;
+    }
 
-.greeting {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 18px;
-}
+    .btn {
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 12px;
+    }
+    .btn:active { transform: translateY(1px); }
 
-.time {
-  font-size: 52px; /* أصغر شوي */
-  font-weight: 700;
-  letter-spacing: 3px;
-}
+    .greeting{
+      font-size: 18px;
+      font-weight: 600;
+      margin: 6px 0 10px;
+    }
 
-.date {
-  margin-top: 14px;
-  font-size: 15px;
-  opacity: 0.95;
-}
+    .time{
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      line-height: 1.05;
+    }
 
-/* ⭐ نجوم الليل */
-.star {
-  position: absolute;
-  font-size: 10px;
-  opacity: 0;
-}
+    .date{
+      margin-top: 8px;
+      font-size: 14px;
+      opacity: 0.95;
+    }
 
-.star1 { top: 20px; left: 30px; }
-.star2 { bottom: 25px; right: 45px; }
+    .adhanBox{
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
 
-.night .star {
-  opacity: 0.8;
-  animation: twinkle 3s infinite ease-in-out;
-}
+    .panel{
+      border-radius: 14px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      padding: 10px 12px;
+      text-align: right;
+    }
 
-@keyframes twinkle {
-  0%,100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.3); }
-}
-</style>
+    .panelTitle{
+      font-size: 12px;
+      opacity: 0.9;
+      margin-bottom: 6px;
+    }
+
+    .nextPrayer{
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      font-weight: 700;
+    }
+    .nextPrayer .name { font-size: 16px; }
+    .nextPrayer .countdown { font-size: 16px; letter-spacing: 1px; }
+
+    .times{
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px 10px;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    .times .item{
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      opacity: 0.95;
+    }
+
+    .hint{
+      font-size: 11px;
+      opacity: 0.85;
+      margin-top: 6px;
+      text-align: center;
+    }
+  </style>
+
+  <!-- PrayTimes library (tiny) -->
+  <script src="https://unpkg.com/praytimes@2.3.0/PrayTimes.js"></script>
 </head>
 
 <body>
+  <div id="card" class="card">
+    <div class="top">
+      <div class="pill" id="locPill">📍 الدوحة</div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn" id="toggleFmt">12/24</button>
+        <button class="btn" id="refreshLoc">تحديث الموقع</button>
+      </div>
+    </div>
 
-<div id="card" class="card">
-  <div class="star star1">✦</div>
-  <div class="star star2">✦</div>
+    <div id="greeting" class="greeting"></div>
+    <div id="time" class="time"></div>
+    <div id="date" class="date"></div>
 
-  <div id="greeting" class="greeting"></div>
-  <div id="time" class="time"></div>
-  <div id="date" class="date"></div>
-</div>
+    <div class="adhanBox">
+      <div class="panel">
+        <div class="panelTitle">الصلاة القادمة</div>
+        <div class="nextPrayer">
+          <div class="name" id="nextPrayerName">—</div>
+          <div class="countdown" id="nextPrayerCountdown">—</div>
+        </div>
+        <div class="hint" id="methodHint">طريقة الحساب: أم القرى (قابلة للتعديل بالكود)</div>
+      </div>
+
+      <div class="panel">
+        <div class="panelTitle">مواقيت اليوم</div>
+        <div class="times" id="timesGrid"></div>
+        <div class="hint" id="tzHint">المنطقة الزمنية: Asia/Qatar</div>
+      </div>
+    </div>
+  </div>
 
 <script>
-function updateClock() {
-  const now = new Date();
-  let hours = now.getHours();
-  let minutes = now.getMinutes();
+  // ====== Settings ======
+  // Default: Doha coords (if geolocation not allowed)
+  let coords = { lat: 25.2854, lng: 51.5310 };
+  let locationLabel = "الدوحة";
 
-  const greeting = document.getElementById("greeting");
-  const card = document.getElementById("card");
+  // Method options in PrayTimes:
+  // "MWL", "ISNA", "Egypt", "Makkah", "Karachi", "Tehran", "Jafari"
+  // Qatar usually works fine with "Makkah" / "MWL". Start with "Makkah".
+  const prayTimes = new PrayTimes("Makkah");
 
-  card.classList.remove("day", "night");
+  const prefs = {
+    use24h: localStorage.getItem("clock_use24h") === "1",
+  };
 
-  if (hours < 12) {
-    greeting.textContent = "صباح الخير ☀️";
-    card.classList.add("day");
-  } else if (hours < 17) {
-    greeting.textContent = "مساء الخير 🌤";
-    card.classList.add("day");
-  } else {
-    greeting.textContent = "مساء الخير 🌙";
-    card.classList.add("night");
+  const els = {
+    card: document.getElementById("card"),
+    greeting: document.getElementById("greeting"),
+    time: document.getElementById("time"),
+    date: document.getElementById("date"),
+    locPill: document.getElementById("locPill"),
+    timesGrid: document.getElementById("timesGrid"),
+    nextPrayerName: document.getElementById("nextPrayerName"),
+    nextPrayerCountdown: document.getElementById("nextPrayerCountdown"),
+    toggleFmt: document.getElementById("toggleFmt"),
+    refreshLoc: document.getElementById("refreshLoc"),
+  };
+
+  function pad(n){ return n < 10 ? "0"+n : ""+n; }
+
+  function setTheme(hours){
+    els.card.classList.remove("day","night");
+
+    if(hours < 12){
+      els.greeting.textContent = "صباح الخير ☀️";
+      els.card.classList.add("day");
+    } else if(hours < 17){
+      els.greeting.textContent = "مساء الخير 🌤";
+      els.card.classList.add("day");
+    } else {
+      els.greeting.textContent = "مساء الخير 🌙";
+      els.card.classList.add("night");
+    }
   }
 
-  const isPM = hours >= 12;
-  hours = hours % 12 || 12;
+  function formatClock(date){
+    const h = date.getHours();
+    const m = date.getMinutes();
+    if(prefs.use24h) return `${pad(h)}:${pad(m)}`;
 
-  hours = hours < 10 ? "0" + hours : hours;
-  minutes = minutes < 10 ? "0" + minutes : minutes;
+    const isPM = h >= 12;
+    let hh = h % 12 || 12;
+    return `${pad(hh)}:${pad(m)} ${isPM ? "PM" : "AM"}`;
+  }
 
-  document.getElementById("time").textContent =
-    hours + ":" + minutes + " " + (isPM ? "PM" : "AM");
+  function setDateLine(date){
+    const options = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+    els.date.textContent = date.toLocaleDateString('ar-QA', options);
+  }
 
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  document.getElementById("date").textContent =
-    now.toLocaleDateString('ar-QA', options);
-}
+  function parseTimeToDate(baseDate, hhmm){
+    // hhmm is "HH:MM" in 24h from PrayTimes by default; we will force 24h output.
+    const [hh, mm] = hhmm.split(":").map(x => parseInt(x, 10));
+    const d = new Date(baseDate);
+    d.setHours(hh, mm, 0, 0);
+    return d;
+  }
 
-setInterval(updateClock, 60000);
-updateClock();
+  function msToHMS(ms){
+    const total = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    // in widget, hh:mm:ss looks nice
+    return `${pad(h)}:${pad(m)}:${pad(s)}`;
+  }
+
+  function renderPrayerTimes(now){
+    // Force 24h output from PrayTimes so parsing is consistent:
+    // format: "24h" returns "HH:MM"
+    const times = prayTimes.getTimes(now, [coords.lat, coords.lng], now.getTimezoneOffset() / -60, 0, "24h");
+
+    // You can include all, but we'll show the main ones:
+    const list = [
+      ["الفجر", times.fajr],
+      ["الشروق", times.sunrise],
+      ["الظهر", times.dhuhr],
+      ["العصر", times.asr],
+      ["المغرب", times.maghrib],
+      ["العشاء", times.isha],
+    ];
+
+    // Render grid
+    els.timesGrid.innerHTML = "";
+    for (const [name, t] of list){
+      const item = document.createElement("div");
+      item.className = "item";
+      item.innerHTML = `<span>${name}</span><span>${displayAdhanTime(now, t)}</span>`;
+      els.timesGrid.appendChild(item);
+    }
+
+    // Next prayer logic (skip sunrise as "prayer", but keep it as milestone if you like)
+    const prayerOrder = [
+      ["الفجر", times.fajr],
+      ["الظهر", times.dhuhr],
+      ["العصر", times.asr],
+      ["المغرب", times.maghrib],
+      ["العشاء", times.isha],
+    ];
+
+    let next = null;
+
+    for (const [name, t] of prayerOrder){
+      const dt = parseTimeToDate(now, t);
+      if (dt > now){
+        next = { name, at: dt };
+        break;
+      }
+    }
+
+    // If none left today, next is tomorrow fajr
+    if(!next){
+      const tomorrow = new Date(now);
+      tomorrow.setDate(now.getDate() + 1);
+      const timesTomorrow = prayTimes.getTimes(tomorrow, [coords.lat, coords.lng], tomorrow.getTimezoneOffset() / -60, 0, "24h");
+      next = { name: "الفجر", at: parseTimeToDate(tomorrow, timesTomorrow.fajr) };
+    }
+
+    els.nextPrayerName.textContent = `${next.name} — ${displayAdhanTime(now, toHHMM(next.at))}`;
+    updateCountdown(next.at);
+  }
+
+  function toHHMM(date){
+    return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  function displayAdhanTime(baseDate, hhmm24){
+    // Show adhan times in same preference (12/24)
+    const d = parseTimeToDate(baseDate, hhmm24);
+    if(prefs.use24h) return toHHMM(d);
+
+    let h = d.getHours();
+    const m = d.getMinutes();
+    const isPM = h >= 12;
+    h = h % 12 || 12;
+    return `${pad(h)}:${pad(m)} ${isPM ? "PM" : "AM"}`;
+  }
+
+  let countdownTarget = null;
+  function updateCountdown(targetDate){
+    countdownTarget = targetDate;
+  }
+
+  function tick(){
+    const now = new Date();
+
+    setTheme(now.getHours());
+    els.time.textContent = formatClock(now);
+    setDateLine(now);
+
+    if (countdownTarget){
+      els.nextPrayerCountdown.textContent = msToHMS(countdownTarget - now);
+      // when it reaches zero, refresh times
+      if ((countdownTarget - now) <= 0) {
+        renderPrayerTimes(new Date());
+      }
+    }
+  }
+
+  function scheduleExactMinuteAndSecond(){
+    // clock: we tick each second for countdown, but it's light
+    tick();
+
+    // align to next second boundary for smoother countdown
+    const now = new Date();
+    const msToNextSecond = 1000 - now.getMilliseconds();
+    setTimeout(() => {
+      tick();
+      setInterval(tick, 1000);
+    }, msToNextSecond);
+  }
+
+  function setLocationLabel(name){
+    locationLabel = name;
+    els.locPill.textContent = `📍 ${name}`;
+  }
+
+  function requestGeolocation(){
+    if(!navigator.geolocation){
+      setLocationLabel("الدوحة (افتراضي)");
+      renderPrayerTimes(new Date());
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setLocationLabel("موقعك الحالي");
+        renderPrayerTimes(new Date());
+      },
+      () => {
+        setLocationLabel("الدوحة (افتراضي)");
+        renderPrayerTimes(new Date());
+      },
+      { enableHighAccuracy: false, timeout: 6000, maximumAge: 3600000 }
+    );
+  }
+
+  // Controls
+  els.toggleFmt.addEventListener("click", () => {
+    prefs.use24h = !prefs.use24h;
+    localStorage.setItem("clock_use24h", prefs.use24h ? "1" : "0");
+    renderPrayerTimes(new Date());
+    tick();
+  });
+
+  els.refreshLoc.addEventListener("click", () => {
+    requestGeolocation();
+  });
+
+  // Init
+  setLocationLabel("الدوحة");
+  requestGeolocation();
+  renderPrayerTimes(new Date());
+  scheduleExactMinuteAndSecond();
 </script>
-
 </body>
 </html>
